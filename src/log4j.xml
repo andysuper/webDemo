@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<!-- 记录日志、信息、警告、错误 -->
+	<appender name="info" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="encoding" value="UTF-8"/>
+		<param name="threshold" value="info"/>
+		<param name="append" value="true"/>
+		<param name="file" value="C:/logs/info/test_info.log"/>
+		<param name="datePattern" value="'.'yyyy-MM-dd-a"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d [%t] %-5p [%c] - %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="levelMax" value="info"/>
+			<param name="levelMin" value="info"/>
+		</filter>
+	</appender>
+	<appender name="warn" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="encoding" value="UTF-8"/>
+		<param name="threshold" value="warn"/>
+		<param name="append" value="true"/>
+		<param name="file" value="C:/logs/warning/warn_info.log"/>
+		<param name="datePattern" value="'.'yyyy-MM-dd-a"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d [%t] %-5p [%c] - %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="levelMax" value="warn"/>
+			<param name="levelMin" value="warn"/>
+		</filter>
+	</appender>
+	<appender name="error" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="encoding" value="UTF-8"/>
+		<param name="threshold" value="error"/>
+		<param name="append" value="true"/>
+		<param name="file" value="C:/logs/error/error_info.log"/>
+		<param name="datePattern" value="'.'yyyy-MM-dd-a"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d [%t] %-5p [%c] - %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="levelMax" value="error"/>
+			<param name="levelMin" value="error"/>
+		</filter>
+	</appender>
+	<!---->
+	<appender name="consoleInfo" class="org.apache.log4j.ConsoleAppender">
+		<param name="threshold" value="warn"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d [%t] %-5p [%c] - %m%n"/>
+		</layout>
+	</appender> 
+	
+	<!-- 显示sql语句 -->
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">    
+        <layout class="org.apache.log4j.PatternLayout">    
+            <param name="ConversionPattern" value="%-5p %d{MM-dd HH:mm:ss} %m  (%F:%L) \n" /> 
+            <param name="ConversionPattern" value="%-5p %d{MM-dd HH:mm:ss} %m \n" />    
+        </layout>    
+    </appender>
+	<category name="java.sql">
+		<priority value="debug"/>	
+	</category> 
+	
+	<root>
+		<level value="info"></level>
+		<appender-ref ref="consoleInfo"/>
+		<appender-ref ref="info"/>
+		<appender-ref ref="warn"/>
+		<appender-ref ref="error"/>
+		<appender-ref ref="STDOUT"/>
+	</root>
+	
+</log4j:configuration>

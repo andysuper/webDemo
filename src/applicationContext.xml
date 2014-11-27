@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="  
+    http://www.springframework.org/schema/beans   
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd   
+    http://www.springframework.org/schema/context     
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd   
+    http://www.springframework.org/schema/tx   
+    http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+    http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+	<!-- 配置要扫描的包,spring自动注册bean -->
+	<context:component-scan base-package="com.soft.service.*"></context:component-scan>
+
+	<!-- 加载资源文件 -->
+	<context:property-placeholder
+		location="classpath:com/soft/resources/properties/jdbc.properties" />
+
+	<!-- 配置数据源 -->
+	<!-- <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" 
+		destroy-method="close"> <property name="driverClassName" value="${driverClassName}" 
+		/> <property name="url" value="${url}" /> <property name="username" value="${user}" 
+		/> <property name="password" value="${password}" /> <property name="initialSize" 
+		value="${initialSize}" /> <property name="maxActive" value="${maxActive}" 
+		/> <property name="maxIdle" value="${maxIdle}" /> <property name="minIdle" 
+		value="${minIdle}" /> <property name=""></property> </bean> -->
+
+	<!-- C3P0拥有比DBCP更丰富的配置属性，通过这些属性，可以对数据源进行各种有效的控制： acquireIncrement：当连接池中的连接用完时，C3P0一次性创建新连接的数目； 
+		acquireRetryAttempts：定义在从数据库获取新连接失败后重复尝试获取的次数，默认为30； acquireRetryDelay：两次连接中间隔时间，单位毫秒，默认为1000； 
+		autoCommitOnClose：连接关闭时默认将所有未提交的操作回滚。默认为false； automaticTestTable： C3P0将建一张名为Test的空表，并使用其自带的查询语句进行测试。如果定义了这个参数，那么属性preferredTestQuery将被忽略。你 
+		不能在这张Test表上进行任何操作，它将中为C3P0测试所用，默认为null； breakAfterAcquireFailure：获取连接失败将会引起所有等待获取连接的线程抛出异常。但是数据源仍有效保留，并在下次调 
+		用getConnection()的时候继续尝试获取连接。如果设为true，那么在尝试获取连接失败后该数据源将申明已断开并永久关闭。默认为 false； 
+		checkoutTimeout：当连接池用完时客户端调用getConnection()后等待获取新连接的时间，超时后将抛出SQLException，如设为0则无限期等待。单位毫秒，默认为0； 
+		connectionTesterClassName： 通过实现ConnectionTester或QueryConnectionTester的类来测试连接，类名需设置为全限定名。默认为 
+		com.mchange.v2.C3P0.impl.DefaultConnectionTester； idleConnectionTestPeriod：隔多少秒检查所有连接池中的空闲连接，默认为0表示不检查； 
+		initialPoolSize：初始化时创建的连接数，应在minPoolSize与maxPoolSize之间取值。默认为3； maxIdleTime：最大空闲时间，超过空闲时间的连接将被丢弃。为0或负数则永不丢弃。默认为0； 
+		maxPoolSize：连接池中保留的最大连接数。默认为15； maxStatements：JDBC的标准参数，用以控制数据源内加载的PreparedStatement数量。但由于预缓存的Statement属 
+		于单个Connection而不是整个连接池。所以设置这个参数需要考虑到多方面的因素，如果maxStatements与 maxStatementsPerConnection均为0，则缓存被关闭。默认为0； 
+		maxStatementsPerConnection：连接池内单个连接所拥有的最大缓存Statement数。默认为0； numHelperThreads：C3P0是异步操作的，缓慢的JDBC操作通过帮助进程完成。扩展这些操作可以有效的提升性能，通过多线程实现多个操作同时被执行。默认为3； 
+		preferredTestQuery：定义所有连接测试都执行的测试语句。在使用连接测试的情况下这个参数能显著提高测试速度。测试的表必须在初始数据源的时候就存在。默认为null； 
+		propertyCycle： 用户修改系统配置参数执行前最多等待的秒数。默认为300； testConnectionOnCheckout：因性能消耗大请只在需要的时候使用它。如果设为true那么在每个connection提交的时候都 
+		将校验其有效性。建议使用idleConnectionTestPeriod或automaticTestTable 等方法来提升连接测试的性能。默认为false； 
+		testConnectionOnCheckin：如果设为true那么在取得连接的同时将校验连接的有效性。默认为false。 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${driverClass}" />
+		<property name="jdbcUrl" value="${jdbcUrl}" />
+		<property name="user" value="${user}" />
+		<property name="password" value="${password}" />
+		<property name="idleConnectionTestPeriod" value="${idleConnectionTestPeriod}" />
+		<property name="testConnectionOnCheckout" value="true" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 配置事务的传播特性 -->
+	<bean id="baseTransactionProxy"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		abstract="true">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="add*">PROPAGATION_REQUIRED</prop>
+				<prop key="edit*">PROPAGATION_REQUIRED</prop>
+				<prop key="remove*">PROPAGATION_REQUIRED</prop>
+				<prop key="insert*">PROPAGATION_REQUIRED</prop>
+				<prop key="update*">PROPAGATION_REQUIRED</prop>
+				<prop key="del*">PROPAGATION_REQUIRED</prop>
+				<prop key="cancel*">PROPAGATION_REQUIRED</prop>
+				<prop key="*">readOnly</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- The propagation characteristics of the configuration affairs -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="edit*" propagation="REQUIRED" />
+			<tx:method name="remove*" propagation="REQUIRED" />
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="batchUpdate" propagation="REQUIRED" />
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config proxy-target-class="true">
+		<aop:advisor advice-ref="txAdvice"
+			pointcut="execution(* com.soft.service..*Service.*(..))" />
+	</aop:config>
+
+	<!-- 加载mybatis配置文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<property name="mapperLocations"
+			value="classpath*:com/soft/resources/mappers/**/*.xml" />
+	</bean>
+	<!-- 配置mybatis自动扫描并注册dao 被注册后的dao的命名规则是骆驼式的 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.soft.dao.**" />
+	</bean>
+
+</beans>
+
+
