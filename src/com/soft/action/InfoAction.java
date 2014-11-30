@@ -41,7 +41,6 @@ public class InfoAction extends BaseAction {
         } catch (Exception e) {
             e.printStackTrace();
         }
-		System.out.println("aaaa");
 		return null;
 	}
 }
